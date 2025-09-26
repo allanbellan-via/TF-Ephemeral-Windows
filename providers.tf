@@ -1,14 +1,17 @@
-# providers.tf — usa variáveis (definidas em provider_var.tf privado)
-variable "tenancy_ocid"      { type = string }
-variable "user_ocid"         { type = string }
-variable "fingerprint"       { type = string }
-variable "region"            { type = string }
-variable "private_key_path"  { type = string }
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = "~> 6.0"
+    }
+  }
+}
 
 provider "oci" {
   tenancy_ocid     = var.tenancy_ocid
   user_ocid        = var.user_ocid
   fingerprint      = var.fingerprint
+  private_key_path = var.private_key_path   # ou use private_key_pem
   region           = var.region
-  private_key_path = var.private_key_path
 }

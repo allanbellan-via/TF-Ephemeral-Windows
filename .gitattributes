@@ -1,0 +1,8 @@
+# Terraform e textos: sempre LF
+*.tf      text eol=lf
+*.tfvars  text eol=lf
+*.md      text eol=lf
+# Shell scripts precisam de LF e bit executável
+*.sh      text eol=lf
+# PowerShell pode manter CRLF
+*.ps1     text eol=crlf

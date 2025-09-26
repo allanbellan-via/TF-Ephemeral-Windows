@@ -8,6 +8,7 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+provider_var.auto.tfvars
 
 # Credenciais locais / chaves (NÃO versionar)
 provider_var.tf
