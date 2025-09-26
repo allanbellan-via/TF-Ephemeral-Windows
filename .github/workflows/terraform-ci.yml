@@ -1,0 +1,80 @@
+name: terraform-ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ephemeral-win2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init (no backend)
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+  # (Opcional) Plano com OCI — precisa de secrets e é manual
+  plan:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ephemeral-win2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Write provider_var.tf from secrets
+        run: |
+          cat > provider_var.tf <<'EOF'
+          variable "tenancy_ocid"      { default = "${{ secrets.OCI_TENANCY_OCID }}" }
+          variable "user_ocid"         { default = "${{ secrets.OCI_USER_OCID }}" }
+          variable "fingerprint"       { default = "${{ secrets.OCI_FINGERPRINT }}" }
+          variable "region"            { default = "${{ secrets.OCI_REGION }}" }
+          variable "private_key_path"  { default = "./oci_api_key.pem" }
+          EOF
+
+      - name: Write OCI private key
+        run: |
+          echo "${{ secrets.OCI_API_KEY_PEM }}" > oci_api_key.pem
+          chmod 600 oci_api_key.pem
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform plan (no apply)
+        env:
+          TF_IN_AUTOMATION: "true"
+        run: |
+          terraform workspace new ci || true
+          terraform workspace select ci
+          terraform plan -lock=false -out=tfplan
+
+      - name: Upload plan as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: ephemeral-win2022/tfplan

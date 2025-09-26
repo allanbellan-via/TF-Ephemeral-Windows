@@ -1,0 +1,35 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Credenciais locais / chaves (NÃO versionar)
+provider_var.tf
+*.pem
+*.key
+
+# IDEs / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Virtualenvs / cache
+.venv/
+__pycache__/
+*.pyc
+
+# n8n / env (se usar local)
+.env
+.env.*
+
+
+#Outros
+Comandosgit.txt
