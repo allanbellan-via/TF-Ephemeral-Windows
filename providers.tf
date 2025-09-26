@@ -9,9 +9,8 @@ terraform {
 }
 
 provider "oci" {
-  tenancy_ocid     = var.tenancy_ocid
-  user_ocid        = var.user_ocid
-  fingerprint      = var.fingerprint
-  private_key_path = var.private_key_path   # ou use private_key_pem
-  region           = var.region
+  auth  = "InstancePrincipal"
+  # escolha 1: declare a região aqui
+  region = var.region
+  # OU escolha 2: use a env var OCI_REGION (ver Passo 4)
 }

@@ -1,27 +1,8 @@
-variable "tenancy_ocid"      { 
-  type = string
-  sensitive = true
+variable "region" {
+  type        = string
+  description = "Região OCI (ex.: sa-saopaulo-1). Pode vir de env OCI_REGION."
+  default     = "sa-saopaulo-1"
 }
-
-variable "user_ocid"         { 
-  type = string
-  sensitive = true
-}
-
-variable "fingerprint"       {
-  type = string
-  sensitive = true
-}
-
-variable "private_key_path"  {
-  type = string
-  sensitive = true
-}
-
-variable "region"            {
-  type = string
-}
-
 
 variable "compartment_ocid" {
   type        = string
