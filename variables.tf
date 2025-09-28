@@ -17,31 +17,35 @@ variable "availability_domain" {
 # --------------- CONFIGURAÇÃO DA VM ---------------
 variable "shape" {
   type        = string
-  description = "Shape da instância (ex: VM.Standard3.Flex)."
-  default     = "VM.Standard3.Flex"
+  description = "Shape da instância."
+  # ALTERAÇÃO PARA TESTE: Trocado o padrão para um shape fixo
+  default     = "VM.Standard2.1"
 }
 
-variable "ocpus" {
-  type        = number
-  description = "Número de OCPUs para a VM (somente para shapes Flex)."
-  default     = 1
-}
+# ALTERAÇÃO PARA TESTE: Comentado pois não é usado por shapes fixos
+# variable "ocpus" {
+#   type        = number
+#   description = "Número de OCPUs para a VM (somente para shapes Flex)."
+#   default     = 1
+# }
 
-variable "memory_in_gbs" {
-  type        = number
-  description = "Memória em GBs para a VM (somente para shapes Flex)."
-  default     = 16
-}
+# ALTERAÇÃO PARA TESTE: Comentado pois não é usado por shapes fixos
+# variable "memory_in_gbs" {
+#   type        = number
+#   description = "Memória em GBs para a VM (somente para shapes Flex)."
+#   default     = 16
+# }
 
 variable "boot_volume_size_gbs" {
   type        = number
   description = "Tamanho do boot volume em GBs. Deixe como null para usar o padrão da imagem."
-  # ALTERAÇÃO: Valor padrão 'null' para tornar opcional
   default     = 256
   nullable    = true
 }
 
 # --------------- CONFIGURAÇÃO DE REDE ---------------
+# (O restante do arquivo continua igual)
+
 variable "subnet_ocid" {
   type        = string
   description = "OCID da Subnet onde a VM será conectada."
@@ -73,7 +77,7 @@ variable "viaadmin_username" {
 
 variable "viaadmin_password" {
   type      = string
-  sensitive = true # ALTERAÇÃO: Marca a variável como sensível para não exibir em logs/state
+  sensitive = true
 }
 
 variable "test_username" {
@@ -83,7 +87,7 @@ variable "test_username" {
 
 variable "test_password" {
   type      = string
-  sensitive = true # ALTERAÇÃO: Marca a variável como sensível
+  sensitive = true
 }
 
 # --------------- TAGS E NOMES ---------------
@@ -100,6 +104,5 @@ variable "purpose" {
 variable "owner_tag" {
   type        = string
   description = "Nome do responsável pela VM (para a tag 'owner')."
-  # ALTERAÇÃO: Adicionada variável para a tag 'owner'
   default     = "allan"
 }

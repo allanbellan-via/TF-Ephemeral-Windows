@@ -2,14 +2,13 @@
 # main.tf — Lógica de imagem + VM
 ############################################
 
-# ---------- LOOKUP DE IMAGEM ----------
+# ---------- LOOKUP DE IMAGEM (sem alterações) ----------
 data "oci_core_images" "win2022_standard" {
   compartment_id         = var.compartment_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022 Standard"
   sort_by                = "TIMECREATED"
   sort_order             = "DESC"
-  # ALTERAÇÃO: Removido 'shape = var.shape' para evitar conflitos com a API
 }
 
 data "oci_core_images" "win2022_generic" {
@@ -18,10 +17,9 @@ data "oci_core_images" "win2022_generic" {
   operating_system_version = "Server 2022"
   sort_by                = "TIMECREATED"
   sort_order             = "DESC"
-  # ALTERAÇÃO: Removido 'shape = var.shape' para evitar conflitos com a API
 }
 
-# ---------- LOCAIS (apenas os de imagem) ----------
+# ---------- LOCAIS (sem alterações) ----------
 locals {
   image_from_override = var.image_ocid_override
   image_from_std      = try(data.oci_core_images.win2022_standard.images[0].id, "")
@@ -40,12 +38,16 @@ resource "oci_core_instance" "win" {
   availability_domain = var.availability_domain
   compartment_id      = var.compartment_ocid
   display_name        = local.display_name
+
+  # ALTERAÇÃO PARA TESTE: Shape fixo. A variável var.shape também tem esse default agora.
   shape               = var.shape
 
-  shape_config {
-    ocpus         = var.ocpus
-    memory_in_gbs = var.memory_in_gbs
-  }
+  # ALTERAÇÃO PARA TESTE: Bloco 'shape_config' removido.
+  # Shapes fixos não aceitam este parâmetro.
+  # shape_config {
+  #   ocpus         = var.ocpus
+  #   memory_in_gbs = var.memory_in_gbs
+  # }
 
   create_vnic_details {
     subnet_id        = var.subnet_ocid
@@ -76,7 +78,7 @@ resource "oci_core_instance" "win" {
 
   freeform_tags = {
     purpose   = "AutomacaoDeTestes-Tecnologia"
-    owner     = var.owner_tag # ALTERAÇÃO: Usando a nova variável
+    owner     = var.owner_tag
     lifecycle = "short"
     workspace = local.ws
   }
