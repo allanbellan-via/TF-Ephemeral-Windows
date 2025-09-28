@@ -4,25 +4,22 @@
 
 # ---------- LOOKUP DE IMAGEM ----------
 data "oci_core_images" "win2022_standard" {
-  compartment_id         = var.compartment_ocid
+  compartment_id         = var.tenancy_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022 Standard"
-  # ALTERAÇÃO: Corrigido o case-sensitive de TIMECREATED
   sort_by                = "TIMECREATED"
   sort_order             = "DESC"
 }
 
 data "oci_core_images" "win2022_generic" {
-  compartment_id         = var.compartment_ocid
+  compartment_id         = var.tenancy_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022"
-  # ALTERAÇÃO: Corrigido o case-sensitive de TIMECREATED
   sort_by                = "TIMECREATED"
   sort_order             = "DESC"
 }
 
-# ---------- LOCAIS ----------
-# (O restante do arquivo está correto e permanece igual)
+# ---------- LOCAIS (apenas para a lógica de imagem) ----------
 locals {
   image_from_override = var.image_ocid_override
   image_from_std      = try(data.oci_core_images.win2022_standard.images[0].id, "")
@@ -40,7 +37,7 @@ locals {
 resource "oci_core_instance" "win" {
   availability_domain = var.availability_domain
   compartment_id      = var.compartment_ocid
-  display_name        = local.display_name
+  display_name        = local.display_name # Usa o local do arquivo locals.tf
   shape               = var.shape
 
   shape_config {
@@ -51,14 +48,13 @@ resource "oci_core_instance" "win" {
   create_vnic_details {
     subnet_id        = var.subnet_ocid
     assign_public_ip = var.assign_public_ip
-    hostname_label   = local.hostname
-    nsg_ids          = var.nsg_ids
+    hostname_label   = local.hostname # Usa o local do arquivo locals.tf
   }
 
   source_details {
     source_type             = "image"
     source_id               = local.selected_image_ocid
-    boot_volume_size_in_gbs = var.boot_volume_size_gbs
+    boot_volume_size_in_gbs = var.boot_volume_size_in_gbs
   }
 
   metadata = {
@@ -79,7 +75,7 @@ resource "oci_core_instance" "win" {
     purpose   = "AutomacaoDeTestes-Tecnologia"
     owner     = var.owner_tag
     lifecycle = "short"
-    workspace = local.ws
+    workspace = local.ws # Usa o local do arquivo locals.tf
   }
 
   timeouts {

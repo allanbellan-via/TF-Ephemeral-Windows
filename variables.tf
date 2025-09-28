@@ -1,4 +1,9 @@
 # --------------- DADOS GERAIS ---------------
+variable "tenancy_ocid" {
+  type        = string
+  description = "OCID da Tenancy (compartimento raiz) OBRIGATÓRIO para buscar as imagens de plataforma."
+}
+
 variable "region" {
   type        = string
   description = "Região da OCI (ex.: sa-saopaulo-1)."
@@ -33,14 +38,14 @@ variable "memory_in_gbs" {
   default     = 16
 }
 
-variable "boot_volume_size_gbs" {
-  type        = number
-  description = "Tamanho do boot volume em GBs. Deixe como null para usar o padrão da imagem."
-  default     = 256
-  nullable    = true
+# --------------- IMAGEM ---------------
+variable "image_ocid_override" {
+  type        = string
+  description = "OPCIONAL: OCID de uma imagem específica para usar, ignorando a busca automática."
+  default     = ""
 }
 
-# --------------- CONFIGURAÇÃO DE REDE ---------------
+# --------------- REDE E DISCO ---------------
 variable "subnet_ocid" {
   type        = string
   description = "OCID da Subnet onde a VM será conectada."
@@ -52,19 +57,15 @@ variable "assign_public_ip" {
   default     = false
 }
 
-variable "nsg_ids" {
-  type        = list(string)
-  description = "Lista de OCIDs de Network Security Groups a serem associados à vNIC."
-  default     = []
+# CORREÇÃO: Bloco da variável que está faltando
+variable "boot_volume_size_in_gbs" {
+  type        = number
+  description = "Tamanho do boot volume em GBs. Deixe como null para usar o padrão da imagem."
+  default     = 256
+  nullable    = true
 }
 
-# --------------- IMAGEM E USERDATA ---------------
-variable "image_ocid_override" {
-  type        = string
-  description = "OCID de uma imagem específica para usar, ignorando a busca automática."
-  default     = "" # O padrão vazio é importante!
-}
-
+# --------------- CREDENCIAIS (USERDATA) ---------------
 variable "viaadmin_username" {
   type    = string
   default = "viaadmin"
@@ -86,16 +87,6 @@ variable "test_password" {
 }
 
 # --------------- TAGS E NOMES ---------------
-variable "prefix" {
-  type    = string
-  default = "ephem"
-}
-
-variable "purpose" {
-  type    = string
-  default = "aut"
-}
-
 variable "owner_tag" {
   type        = string
   description = "Nome do responsável pela VM (para a tag 'owner')."

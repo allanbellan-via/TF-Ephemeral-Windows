@@ -17,8 +17,3 @@ output "public_ip" {
   description = "IP público da instância (se houver)."
   value       = oci_core_instance.win.public_ip
 }
-
-output "workspace" {
-  description = "Workspace utilizado para a criação."
-  value       = local.ws
-}
