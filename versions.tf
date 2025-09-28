@@ -1,9 +1,11 @@
-# BOA PRÁTICA: Fixa a versão do provedor para evitar que novas versões quebrem o código.
+# versions.tf
+
 terraform {
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = "~> 5.30" # Aceitará qualquer versão 5.30.x, mas não a 5.31.0
+      # ATUALIZAÇÃO: Exigindo a versão principal mais recente para garantir compatibilidade
+      version = "~> 6.0"
     }
   }
 }
