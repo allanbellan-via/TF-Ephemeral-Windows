@@ -17,24 +17,21 @@ variable "availability_domain" {
 # --------------- CONFIGURAÇÃO DA VM ---------------
 variable "shape" {
   type        = string
-  description = "Shape da instância."
-  # ALTERAÇÃO PARA TESTE: Trocado o padrão para um shape fixo
-  default     = "VM.Standard2.1"
+  description = "Shape da instância (ex: VM.Standard3.Flex)."
+  default     = "VM.Standard3.Flex"
 }
 
-# ALTERAÇÃO PARA TESTE: Comentado pois não é usado por shapes fixos
-# variable "ocpus" {
-#   type        = number
-#   description = "Número de OCPUs para a VM (somente para shapes Flex)."
-#   default     = 1
-# }
+variable "ocpus" {
+  type        = number
+  description = "Número de OCPUs para a VM (somente para shapes Flex)."
+  default     = 1
+}
 
-# ALTERAÇÃO PARA TESTE: Comentado pois não é usado por shapes fixos
-# variable "memory_in_gbs" {
-#   type        = number
-#   description = "Memória em GBs para a VM (somente para shapes Flex)."
-#   default     = 16
-# }
+variable "memory_in_gbs" {
+  type        = number
+  description = "Memória em GBs para a VM (somente para shapes Flex)."
+  default     = 16
+}
 
 variable "boot_volume_size_gbs" {
   type        = number
@@ -44,8 +41,6 @@ variable "boot_volume_size_gbs" {
 }
 
 # --------------- CONFIGURAÇÃO DE REDE ---------------
-# (O restante do arquivo continua igual)
-
 variable "subnet_ocid" {
   type        = string
   description = "OCID da Subnet onde a VM será conectada."
@@ -67,7 +62,7 @@ variable "nsg_ids" {
 variable "image_ocid_override" {
   type        = string
   description = "OCID de uma imagem específica para usar, ignorando a busca automática."
-  default     = ""
+  default     = "" # O padrão vazio é importante!
 }
 
 variable "viaadmin_username" {

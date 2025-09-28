@@ -2,12 +2,12 @@
 # main.tf — Lógica de imagem + VM
 ############################################
 
-# ---------- LOOKUP DE IMAGEM (sem alterações) ----------
+# ---------- LOOKUP DE IMAGEM ----------
 data "oci_core_images" "win2022_standard" {
   compartment_id         = var.compartment_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022 Standard"
-  sort_by                = "TIMECREATED"
+  sort_by                = "TIMECreated"
   sort_order             = "DESC"
 }
 
@@ -15,11 +15,11 @@ data "oci_core_images" "win2022_generic" {
   compartment_id         = var.compartment_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022"
-  sort_by                = "TIMECREATED"
+  sort_by                = "TIMECreated"
   sort_order             = "DESC"
 }
 
-# ---------- LOCAIS (sem alterações) ----------
+# ---------- LOCAIS ----------
 locals {
   image_from_override = var.image_ocid_override
   image_from_std      = try(data.oci_core_images.win2022_standard.images[0].id, "")
@@ -38,16 +38,12 @@ resource "oci_core_instance" "win" {
   availability_domain = var.availability_domain
   compartment_id      = var.compartment_ocid
   display_name        = local.display_name
-
-  # ALTERAÇÃO PARA TESTE: Shape fixo. A variável var.shape também tem esse default agora.
   shape               = var.shape
 
-  # ALTERAÇÃO PARA TESTE: Bloco 'shape_config' removido.
-  # Shapes fixos não aceitam este parâmetro.
-  # shape_config {
-  #   ocpus         = var.ocpus
-  #   memory_in_gbs = var.memory_in_gbs
-  # }
+  shape_config {
+    ocpus         = var.ocpus
+    memory_in_gbs = var.memory_in_gbs
+  }
 
   create_vnic_details {
     subnet_id        = var.subnet_ocid
