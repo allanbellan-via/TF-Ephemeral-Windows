@@ -1,9 +1,11 @@
+# --- versions.tf ---
+
 terraform {
-  required_version = ">= 1.6.0"
   required_providers {
     oci = {
-      source = "oracle/oci"
-      version = ">= 6.0.0"
+      source  = "oracle/oci"
+      # ALTERAÇÃO: Fixando em uma versão estável anterior
+      version = "5.30.0" 
     }
   }
 }
