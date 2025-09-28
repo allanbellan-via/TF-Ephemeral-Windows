@@ -22,8 +22,8 @@ variable "availability_domain" {
 # --------------- CONFIGURAÇÃO DA VM ---------------
 variable "shape" {
   type        = string
-  description = "Shape da instância (ex: VM.Standard3.Flex)."
-  default     = "VM.Standard3.Flex"
+  description = "Shape da instância (ex: VM.Standard.E5.Flex)."
+  default     = "VM.Standard.E5.Flex"
 }
 
 variable "ocpus" {
