@@ -7,7 +7,8 @@ data "oci_core_images" "win2022_standard" {
   compartment_id         = var.compartment_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022 Standard"
-  sort_by                = "TIMECreated"
+  # ALTERAÇÃO: Corrigido o case-sensitive de TIMECREATED
+  sort_by                = "TIMECREATED"
   sort_order             = "DESC"
 }
 
@@ -15,11 +16,13 @@ data "oci_core_images" "win2022_generic" {
   compartment_id         = var.compartment_ocid
   operating_system       = "Windows"
   operating_system_version = "Server 2022"
-  sort_by                = "TIMECreated"
+  # ALTERAÇÃO: Corrigido o case-sensitive de TIMECREATED
+  sort_by                = "TIMECREATED"
   sort_order             = "DESC"
 }
 
 # ---------- LOCAIS ----------
+# (O restante do arquivo está correto e permanece igual)
 locals {
   image_from_override = var.image_ocid_override
   image_from_std      = try(data.oci_core_images.win2022_standard.images[0].id, "")
