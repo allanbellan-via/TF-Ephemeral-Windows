@@ -1,27 +1,27 @@
 ############################################
-# main.tf — somente lógica de imagem + VM
+# main.tf — Lógica de imagem + VM
 ############################################
 
 # ---------- LOOKUP DE IMAGEM ----------
 data "oci_core_images" "win2022_standard" {
-  compartment_id           = var.compartment_ocid
-  operating_system         = "Windows"
+  compartment_id         = var.compartment_ocid
+  operating_system       = "Windows"
   operating_system_version = "Server 2022 Standard"
-  shape                    = var.shape
-  sort_by                  = "TIMECREATED"
-  sort_order               = "DESC"
+  sort_by                = "TIMECREATED"
+  sort_order             = "DESC"
+  # ALTERAÇÃO: Removido 'shape = var.shape' para evitar conflitos com a API
 }
 
 data "oci_core_images" "win2022_generic" {
-  compartment_id           = var.compartment_ocid
-  operating_system         = "Windows"
+  compartment_id         = var.compartment_ocid
+  operating_system       = "Windows"
   operating_system_version = "Server 2022"
-  shape                    = var.shape
-  sort_by                  = "TIMECREATED"
-  sort_order               = "DESC"
+  sort_by                = "TIMECREATED"
+  sort_order             = "DESC"
+  # ALTERAÇÃO: Removido 'shape = var.shape' para evitar conflitos com a API
 }
 
-# ---------- LOCAIS (apenas os de imagem p/ evitar duplicata com locals.tf) ----------
+# ---------- LOCAIS (apenas os de imagem) ----------
 locals {
   image_from_override = var.image_ocid_override
   image_from_std      = try(data.oci_core_images.win2022_standard.images[0].id, "")
@@ -37,9 +37,9 @@ locals {
 
 # ---------- RECURSO: INSTÂNCIA ----------
 resource "oci_core_instance" "win" {
-  availability_domain = var.availability_domain   # ex.: "aGcE:SA-SAOPAULO-1-AD-1"
+  availability_domain = var.availability_domain
   compartment_id      = var.compartment_ocid
-  display_name        = local.display_name        # definido em locals.tf
+  display_name        = local.display_name
   shape               = var.shape
 
   shape_config {
@@ -49,15 +49,15 @@ resource "oci_core_instance" "win" {
 
   create_vnic_details {
     subnet_id        = var.subnet_ocid
-    assign_public_ip = var.assign_public_ip       # bool
-    hostname_label   = local.hostname             # definido em locals.tf
-    nsg_ids          = var.nsg_ids                # opcional
+    assign_public_ip = var.assign_public_ip
+    hostname_label   = local.hostname
+    nsg_ids          = var.nsg_ids
   }
 
   source_details {
     source_type             = "image"
     source_id               = local.selected_image_ocid
-    boot_volume_size_in_gbs = var.boot_volume_size_gbs    # number; remova se quiser default
+    boot_volume_size_in_gbs = var.boot_volume_size_gbs
   }
 
   metadata = {
@@ -71,19 +71,19 @@ resource "oci_core_instance" "win" {
     )
   }
 
-  preserve_boot_volume                = false
+  preserve_boot_volume                  = false
   is_pv_encryption_in_transit_enabled = true
 
   freeform_tags = {
     purpose   = "AutomacaoDeTestes-Tecnologia"
-    owner     = "allan"
+    owner     = var.owner_tag # ALTERAÇÃO: Usando a nova variável
     lifecycle = "short"
-    workspace = local.ws                     # definido em locals.tf
+    workspace = local.ws
   }
 
   timeouts {
-    create = "10m"
-    delete = "10m"
+    create = "15m"
+    delete = "15m"
   }
 
   lifecycle {
