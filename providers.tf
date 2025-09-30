@@ -1,6 +1,6 @@
 provider "oci" {
-  auth  = "InstancePrincipal"
-  # escolha 1: declare a região aqui
-  region = var.region
-  # OU escolha 2: use a env var OCI_REGION (ver Passo 4)
+  region              = var.region
+  # Se for usar API key via ~/.oci/config:
+  config_file_profile = var.oci_config_file_profile  # ex.: "DEFAULT"
+  # (não use config_file aqui)
 }

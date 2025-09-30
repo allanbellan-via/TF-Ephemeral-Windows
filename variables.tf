@@ -1,3 +1,17 @@
+# --------------- Perfil do OCI-CLI ---------------
+
+variable "oci_config_file_profile" {
+  type    = string
+  default = "DEFAULT"
+}
+
+# --------------- AD AUTO ---------------
+variable "ad_number" {
+  description = "AD desejado quando usando auto-AD: 1, 2 ou 3 (1 = AD-1)."
+  type        = number
+  default     = 1
+}
+
 # --------------- DADOS GERAIS ---------------
 variable "tenancy_ocid" {
   type        = string

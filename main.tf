@@ -1,25 +1,28 @@
 ############################################
-# main.tf — Lógica de imagem + VM
+# main.tf — Lookup de imagem + criação da VM
 ############################################
 
 # ---------- LOOKUP DE IMAGEM ----------
+# Primeiro tenta Windows Server 2022 Standard; se não achar, cai para "Server 2022" genérico
 data "oci_core_images" "win2022_standard" {
-  compartment_id         = var.tenancy_ocid
-  operating_system       = "Windows"
+  compartment_id           = var.tenancy_ocid
+  operating_system         = "Windows"
   operating_system_version = "Server 2022 Standard"
-  sort_by                = "TIMECREATED"
-  sort_order             = "DESC"
+  shape                    = var.shape            # garante compatibilidade com o shape escolhido
+  sort_by                  = "TIMECREATED"
+  sort_order               = "DESC"
 }
 
 data "oci_core_images" "win2022_generic" {
-  compartment_id         = var.tenancy_ocid
-  operating_system       = "Windows"
+  compartment_id           = var.tenancy_ocid
+  operating_system         = "Windows"
   operating_system_version = "Server 2022"
-  sort_by                = "TIMECREATED"
-  sort_order             = "DESC"
+  shape                    = var.shape            # idem
+  sort_by                  = "TIMECREATED"
+  sort_order               = "DESC"
 }
 
-# ---------- LOCAIS (apenas para a lógica de imagem) ----------
+# ---------- LOCAIS (seleção da imagem) ----------
 locals {
   image_from_override = var.image_ocid_override
   image_from_std      = try(data.oci_core_images.win2022_standard.images[0].id, "")
@@ -35,10 +38,12 @@ locals {
 
 # ---------- RECURSO: INSTÂNCIA ----------
 resource "oci_core_instance" "win" {
-  availability_domain = var.availability_domain
-  compartment_id      = var.compartment_ocid
-  display_name        = local.display_name # Usa o local do arquivo locals.tf
-  shape               = var.shape
+  # Usa o AD resolvido automaticamente em ad_auto.tf
+  availability_domain = local.ad_final
+
+  compartment_id = var.compartment_ocid
+  display_name   = local.display_name
+  shape          = var.shape
 
   shape_config {
     ocpus         = var.ocpus
@@ -48,7 +53,9 @@ resource "oci_core_instance" "win" {
   create_vnic_details {
     subnet_id        = var.subnet_ocid
     assign_public_ip = var.assign_public_ip
-    hostname_label   = local.hostname # Usa o local do arquivo locals.tf
+    hostname_label   = local.hostname
+    # Se você tiver NSGs opcionais nas variáveis, descomente a linha abaixo:
+    # nsg_ids        = var.nsg_ids
   }
 
   source_details {
@@ -69,13 +76,13 @@ resource "oci_core_instance" "win" {
   }
 
   preserve_boot_volume                  = false
-  is_pv_encryption_in_transit_enabled = true
+  is_pv_encryption_in_transit_enabled   = true
 
   freeform_tags = {
     purpose   = "AutomacaoDeTestes-Tecnologia"
     owner     = var.owner_tag
     lifecycle = "short"
-    workspace = local.ws # Usa o local do arquivo locals.tf
+    workspace = local.ws
   }
 
   timeouts {
@@ -84,9 +91,15 @@ resource "oci_core_instance" "win" {
   }
 
   lifecycle {
+    # Falha clara se não achou imagem compatível
     precondition {
       condition     = local.image_found
-      error_message = "Nenhuma imagem Windows Server 2022 compatível. Defina -var 'image_ocid_override=ocid1.image....' ou ajuste policies/filtros."
+      error_message = "Nenhuma imagem Windows Server 2022 compatível. Defina -var 'image_ocid_override=ocid1.image...' ou ajuste policies/filtros."
+    }
+    # Falha clara se não resolveu o AD (ex.: falta permissão para listar ADs)
+    precondition {
+      condition     = local.ad_final != ""
+      error_message = "Não foi possível determinar o Availability Domain (auto-AD). Verifique tenancy_ocid, ad_number (1..3) e permissões para listar ADs."
     }
   }
 }
