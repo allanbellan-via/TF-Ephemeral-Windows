@@ -64,16 +64,18 @@ resource "oci_core_instance" "win" {
     boot_volume_size_in_gbs = var.boot_volume_size_in_gbs
   }
 
-  metadata = {
+# --- metadata: injeta user_data apenas se habilitado ---
+  metadata = var.inject_user_data ? {
     user_data = base64encode(
-      templatefile("${path.module}/userdata_win.ps1", {
+      templatefile(var.userdata_template_path, {
         ViaAdminUsername = var.viaadmin_username
         ViaAdminPassword = var.viaadmin_password
         TestUsername     = var.test_username
         TestPassword     = var.test_password
       })
     )
-  }
+  } : {}
+
 
   preserve_boot_volume                  = false
   is_pv_encryption_in_transit_enabled   = true
@@ -100,6 +102,11 @@ resource "oci_core_instance" "win" {
     precondition {
       condition     = local.ad_final != ""
       error_message = "Não foi possível determinar o Availability Domain (auto-AD). Verifique tenancy_ocid, ad_number (1..3) e permissões para listar ADs."
+    }
+    # falhar com mensagem clara quando o arquivo metadata não existir e inject_user_data estiver ativo
+    precondition {
+      condition     = var.inject_user_data ? fileexists(var.userdata_template_path) : true
+      error_message = "O arquivo definido em 'userdata_template_path' não foi encontrado."
     }
   }
 }

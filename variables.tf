@@ -12,6 +12,23 @@ variable "ad_number" {
   default     = 1
 }
 
+# --------------- METADATA ---------------
+# controla se vamos injetar user_data (pode desligar via N8N)
+variable "inject_user_data" {
+  type        = bool
+  default     = true
+  description = "Se true, envia metadata.user_data com o template."
+}
+
+# caminho (relativo ou absoluto) do arquivo de template (ps1)
+# por padrão continua usando o template do módulo atual
+variable "userdata_template_path" {
+  type        = string
+  default     = "${path.module}/userdata_win.ps1"
+  description = "Caminho do template de user_data (PowerShell)."
+}
+
+
 # --------------- DADOS GERAIS ---------------
 variable "tenancy_ocid" {
   type        = string
