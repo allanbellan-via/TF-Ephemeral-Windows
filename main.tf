@@ -67,7 +67,7 @@ resource "oci_core_instance" "win" {
 # --- metadata: injeta user_data apenas se habilitado ---
   metadata = var.inject_user_data ? {
     user_data = base64encode(
-      templatefile(var.userdata_template_path, {
+      templatefile(local.userdata_template_effective, {
         ViaAdminUsername = var.viaadmin_username
         ViaAdminPassword = var.viaadmin_password
         TestUsername     = var.test_username
@@ -105,8 +105,8 @@ resource "oci_core_instance" "win" {
     }
     # falhar com mensagem clara quando o arquivo metadata não existir e inject_user_data estiver ativo
     precondition {
-      condition     = var.inject_user_data ? fileexists(var.userdata_template_path) : true
-      error_message = "O arquivo definido em 'userdata_template_path' não foi encontrado."
+      condition     = var.inject_user_data ? fileexists(local.userdata_template_abs) : true
+      error_message = "Arquivo de template não encontrado em '${local.userdata_template_effective}'."
     }
   }
 }

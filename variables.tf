@@ -24,8 +24,8 @@ variable "inject_user_data" {
 # por padrão continua usando o template do módulo atual
 variable "userdata_template_path" {
   type        = string
-  default     = "${path.module}/userdata_win.ps1"
-  description = "Caminho do template de user_data (PowerShell)."
+  default     = "" # deixe vazio; o fallback será resolvido no main.tf
+  description = "Caminho do template de user_data (absoluto ou relativo ao diretório onde o Terraform é executado)."
 }
 
 
