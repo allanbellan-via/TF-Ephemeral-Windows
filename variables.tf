@@ -38,6 +38,7 @@ variable "tenancy_ocid" {
 variable "region" {
   type        = string
   description = "Região da OCI (ex.: sa-saopaulo-1)."
+  default     = "sa-saopaulo-1"
 }
 
 variable "compartment_ocid" {
@@ -48,6 +49,7 @@ variable "compartment_ocid" {
 variable "availability_domain" {
   type        = string
   description = "Availability Domain (ex.: kIdk:SA-SAOPAULO-1-AD-1)."
+  default     = ""
 }
 
 # --------------- CONFIGURAÇÃO DA VM ---------------
