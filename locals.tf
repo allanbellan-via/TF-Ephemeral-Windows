@@ -2,8 +2,8 @@ locals {
   # Lógica de nomes e workspace
   ws           = lower(coalesce(try(terraform.workspace, ""), "default"))
   name_sufix   = local.ws == "default" ? "" : "-${local.ws}"
-  hostname     = "appgruaut${local.name_sufix}"
-  display_name = "appgruaut${local.name_sufix}"
+  hostname     = "'appgru-aut-'${local.name_sufix}"
+  display_name = "'appgru-aut-'${local.name_sufix}"
 }
 
 locals {
