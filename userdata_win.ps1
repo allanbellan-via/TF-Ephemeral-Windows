@@ -23,4 +23,4 @@ Add-LocalGroupMember -Group "Administrators" -Member $TestUsername
 
 WMIC USERACCOUNT WHERE "Name='$TestUsername'" SET PasswordExpires=FALSE | Out-Null
 
-Write-Host "Usuários administrativos configurados. Bootstrap finalizado."
+Write-Host "Usuarios administrativos configurados. Bootstrap finalizado."
