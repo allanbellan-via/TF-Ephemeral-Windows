@@ -38,8 +38,13 @@ locals {
 
   # ---------- HOSTNAME (sempre minúsculo, DNS-safe) ----------
   _hn_base_raw = lower("${local.prefix_dns}-${local.suffix_text_up}-${local.suffix_num_fmt}")  # ex.: appgru-autst-01
-  _hn_keep     = regexreplace(local._hn_base_raw, "[^a-z0-9-]", "")
-  _hn_collapse = regexreplace(local._hn_keep, "-{2,}", "-")
+  # mantém só [a-z0-9-]
+  _hn_keep = join("", regexall("[a-z0-9-]", local._hn_base_raw))
+
+  # colapsa hifens múltiplos e remove hifens nas pontas
+  # (split gera strings vazias onde há hífens duplos; compact remove vazias; join recolhe com 1 hífen)
+  _hn_collapse = join("-", compact(split("-", local._hn_keep)))
+
   _hn_trimmed  = trim(local._hn_collapse, "-")
   _hn_start    = length(regexall("^[a-z]", local._hn_trimmed)) > 0 ? local._hn_trimmed : "h${local._hn_trimmed}"
   hostname_label = substr(local._hn_start, 0, 63)
