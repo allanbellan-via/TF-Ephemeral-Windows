@@ -1,0 +1,47 @@
+
+
+curl -X POST https://n8ncloud.viasoftcloud.com.br/webhook/vm/create \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "ws": "01",
+    "region": "sa-saopaulo-1",
+    "oci_config_file_profile": "DEFAULT",
+    "tenancy_ocid": "ocid1.tenancy.oc1..aaaaaaaadt7vnc22szquphdimq3o2tvvgov7zb66gaacitrvdvqn6sznsujq",
+    "compartment_ocid": "ocid1.compartment.oc1..aaaaaaaahfh5abt4ceouxph7t563axukcx2u2sqp4jpsx7tis25jssuf2fhq",
+    "subnet_ocid": "ocid1.subnet.oc1.sa-saopaulo-1.aaaaaaaaqz52s2rlgbeou6naq5jendccnw3ayjxrxirj7lts4nlpx7pmmrrq",
+    "shape": "VM.Standard.E5.Flex",
+    "ocpus": 1,
+    "memory_in_gbs": 12,
+    "boot_volume_size_in_gbs": 256,
+    "assign_public_ip": false,
+    "ad_number": 1,
+    "availability_domain": "",
+    "inject_user_data": true,
+    "viaadmin_password": "Troque-Segura#2025",
+    "test_password": "Troque-Segura#2025",
+    "owner_tag": "allan"
+  }'
+
+
+
+
+curl -X POST http://SEU_N8N/webhook/vm/destroy \
+  -H 'Content-Type: application/json' \
+  -d '{ "ws": "teste1" }'
+
+
+
+
+curl -X POST https://n8ncloud.viasoftcloud.com.br/webhook/vm/create \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "ws": "01",
+    "compartment_ocid": "ocid1.compartment.oc1..aaaaaaaahfh5abt4ceouxph7t563axukcx2u2sqp4jpsx7tis25jssuf2fhq",
+    "subnet_ocid": "ocid1.subnet.oc1.sa-saopaulo-1.aaaaaaaaqz52s2rlgbeou6naq5jendccnw3ayjxrxirj7lts4nlpx7pmmrrq",
+    "shape": "VM.Standard.E5.Flex",
+    "ocpus": 1,
+    "memory_in_gbs": 12,
+    "boot_volume_size_in_gbs": 256,
+    "test_password": "Troque-Segura#2025",
+    "owner_tag": "allan"
+  }'

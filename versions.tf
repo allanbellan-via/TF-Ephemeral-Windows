@@ -15,7 +15,6 @@ terraform {
 }
 
 resource "random_integer" "dns" {
-  count = length(trim(local.ws)) == 0 ? 1 : 0
-  min   = 100
-  max   = 999
+  min = 100
+  max = 999
 }

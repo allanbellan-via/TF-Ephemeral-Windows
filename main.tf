@@ -51,12 +51,11 @@ resource "oci_core_instance" "win" {
   }
 
   create_vnic_details {
-  subnet_id        = var.subnet_ocid
-  assign_public_ip = var.assign_public_ip
-  # Escolha uma das duas:
-  hostname_label   = local.hostname_sanitized
-  #hostname_label = local.hostname_sanitized_simple
-}
+    subnet_id        = var.subnet_ocid
+    assign_public_ip = var.assign_public_ip
+    hostname_label   = local.hostname_sanitized
+  }
+
 
   source_details {
     source_type             = "image"

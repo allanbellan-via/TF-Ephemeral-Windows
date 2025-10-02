@@ -19,31 +19,33 @@ locals {
 # ws já deve existir em seus locals (ex.: ws = terraform.workspace)
 # Aqui consideramos "em branco" quando length(trim(local.ws)) == 0
 locals {
-  add_numeric_suffix = length(trim(local.ws)) == 0
+  # workspace atual
+  ws = terraform.workspace
 
-  # --- origem do hostname (ajuste se preferir outra fonte)
-  _hn_src = local.hostname
+  # base sem aspas estranhas
+  base_stub = "appgru-aut"
 
-  # 1) normaliza
-  _hn1 = uper(replace(local._hn_src, " ", "-"))
+  # se ws vier vazio (ou só espaços), não adiciona '-ws'
+  base_name_raw = length(trimspace(local.ws)) > 0 ? "${local.base_stub}-${local.ws}" : local.base_stub
 
-  # 2) remove tudo que não for [a-z0-9-]
+  # --- Saneamento pra DNS (sempre lowercase) ---
+  _hn1 = lower(replace(local.base_name_raw, " ", "-"))
   _hn2 = regexreplace(local._hn1, "[^a-z0-9-]", "")
-
-  # 3) comprime múltiplos hífens
   _hn3 = regexreplace(local._hn2, "-+", "-")
+  # remove hifens no início e no fim
+  _hn4     = regexreplace(regexreplace(local._hn3, "^-+", ""), "-+$", "")
+  _hn_base = length(local._hn4) == 0 ? "vm" : local._hn4
 
-  # 4) remove hífens no início e no fim
-  #_hn4 = regexreplace(regexreplace(local._hn3, "^-+", ""), "-+$", "")
+  # coloca sufixo numérico SÓ quando o ws estiver em branco
+  add_numeric_suffix = length(trimspace(local.ws)) == 0
 
-  # 5) fallback se esvaziou
-  _hn_base = length(local._hn3) == 0 ? "vm" : local._hn3
-  # _hn_base = length(local._hn4) == 0 ? "vm" : local._hn4
-
-  # 6) truncagem variável: se vai ter sufixo (3 dígitos), reserva 12 chars; senão, 15
+  # se tiver sufixo, reservamos 12 + 3 = 15 chars
   _hn_trunc_for_suffix = substr(local._hn_base, 0, 12)
   _hn_trunc_no_suffix  = substr(local._hn_base, 0, 15)
 
-  # 7) hostname final: só põe número no final se ws estiver em branco
-  hostname_sanitized = local.add_numeric_suffix ? format("%s%03d", local._hn_trunc_for_suffix, random_integer.dns[0].result) : local._hn_trunc_no_suffix
+  hostname_sanitized = local.add_numeric_suffix ? format("%s%03d", local._hn_trunc_for_suffix, random_integer.dns.result) : local._hn_trunc_no_suffix
+
+  # display_name pode manter o ws mesmo vazio (só informativo)
+  display_name = "ephem-aut-${local.ws}"
 }
+
