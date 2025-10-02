@@ -1,11 +1,13 @@
 #ps1_sysnative
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
+# Variáveis vindas do Terraform (mantenha exatamente assim)
 $ViaAdminUsername    = "${ViaAdminUsername}"
 $ViaAdminPasswordRaw = "${ViaAdminPassword}"
 $TestUsername        = "${TestUsername}"
 $TestPasswordRaw     = "${TestPassword}"
 
+# Converte para SecureString para os cmdlets de conta local
 $ViaAdminPassword = $ViaAdminPasswordRaw | ConvertTo-SecureString -AsPlainText -Force
 $TestPassword     = $TestPasswordRaw     | ConvertTo-SecureString -AsPlainText -Force
 

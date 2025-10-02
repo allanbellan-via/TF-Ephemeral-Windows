@@ -53,6 +53,12 @@ variable "availability_domain" {
 }
 
 # --------------- CONFIGURAÇÃO DA VM ---------------
+variable "name_suffix" {
+  type        = string
+  default     = ""
+  description = "Sufixo opcional para compor display_name/hostname (ex.: '01'). Se vazio, usa número aleatório."
+}
+
 variable "shape" {
   type        = string
   description = "Shape da instância (ex: VM.Standard.E5.Flex)."

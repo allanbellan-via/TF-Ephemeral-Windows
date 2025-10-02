@@ -46,3 +46,32 @@ locals {
   # Display name (informativo)
   display_name = "APPGRU-${local.ws}"
 }
+
+locals {
+  # Ajuste o prefixo conforme seu padrão
+  prefix_raw = "appgru"
+
+  # Sufixo: usa o fornecido ou gera aleatório de 3 dígitos
+  suffix_raw = trimspace(var.name_suffix) != "" ? lower(trimspace(var.name_suffix)) : (
+    length(random_integer.dns) > 0 ? format("%03d", random_integer.dns[0].result) : "001"
+  )
+
+  # Normaliza (apenas a-z0-9-)
+  prefix_norm = lower(regexreplace(local.prefix_raw, "[^a-z0-9-]", ""))
+  suffix_norm = lower(regexreplace(local.suffix_raw, "[^a-z0-9-]", ""))
+
+  # Junta partes (sem env), evitando hifens duplos e nas pontas
+  _hn0 = join("-", compact([
+    local.prefix_norm != "" ? local.prefix_norm : null,
+    local.suffix_norm != "" ? local.suffix_norm : null,
+  ]))
+  _hn1 = regexreplace(local._hn0, "-{2,}", "-")
+  _hn2 = trim(local._hn1, "-")
+
+  # Começa com letra? Se não, prefixa 'h'. Limita a 63 chars
+  _hn3           = length(regexall("^[a-z]", local._hn2)) > 0 ? local._hn2 : (local._hn2 != "" ? "h${local._hn2}" : "host")
+  hostname_label = substr(local._hn3, 0, 63)
+
+  # Display name reaproveita o mesmo sufixo
+  display_name = "${local.suffix_raw}"
+}

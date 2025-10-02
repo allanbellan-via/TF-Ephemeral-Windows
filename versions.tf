@@ -14,7 +14,9 @@ terraform {
   }
 }
 
+# Gera número de 3 dígitos apenas quando name_suffix está vazio
 resource "random_integer" "dns" {
-  min = 100
-  max = 999
+  count = trimspace(var.name_suffix) == "" ? 1 : 0
+  min   = 100
+  max   = 999
 }
