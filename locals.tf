@@ -25,7 +25,7 @@ locals {
 
   # Extrai parte de texto (primeiro segmento), só letras (fallback "WS" se vazio)
   _text_raw = length(local.parts) >= 1 ? local.parts[0] : ""
-  _text_letters = regexreplace(local._text_raw, "[^A-Za-z]", "")
+  _text_letters = join("", regexall("[A-Za-z]", local._text_raw))
   suffix_text_up = upper(local._text_letters != "" ? local._text_letters : "WS")
 
   # Extrai parte numérica (último segmento se for 1–2 dígitos), default 01
