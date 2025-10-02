@@ -53,6 +53,15 @@ variable "availability_domain" {
 }
 
 # --------------- CONFIGURAÇÃO DA VM ---------------
+variable "ws" {
+  type        = string
+  description = "Identificador em uma string (ex.: AUTST-01). Pode ser só texto (AUTST) ou só número (01)."
+  validation {
+    # Letras, números e hífens; evita caracteres estranhos
+    condition     = can(regex("^[A-Za-z0-9-]{1,32}$", var.ws))
+    error_message = "ws deve conter apenas letras, números e hífens (1–32 chars)."
+  }
+}
 variable "name_suffix" {
   type        = string
   default     = ""

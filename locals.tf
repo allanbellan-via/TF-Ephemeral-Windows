@@ -8,70 +8,39 @@ locals {
   userdata_template_abs = abspath(local.userdata_template_effective)
 }
 
+
+############################################
+# Nomes a partir de var.ws (ex.: "AUTST-01")
+# Display Name: MAIÚSCULO  -> APPGRU-AUTST-01
+# Hostname    : minúsculo  -> appgru-autst-01 (DNS-safe)
+############################################
 locals {
-  # Workspace atual
-  ws = terraform.workspace
+  # Prefixos fixos
+  prefix_display = "APPGRU"  # para Display Name
+  prefix_dns     = "appgru"  # para hostname
 
-  # ----- Nome base -----
-  base_stub     = "appgru-"
-  base_name_raw = length(trimspace(local.ws)) > 0 ? "${local.base_stub}-${local.ws}" : local.base_stub
+  # Normaliza entrada
+  ws_trim = trimspace(var.ws)
+  parts   = split("-", local.ws_trim)
 
-  # ----- Normaliza: espaços -> '-', minúsculas -----
-  _hn1 = lower(replace(local.base_name_raw, " ", "-"))
+  # Extrai parte de texto (primeiro segmento), só letras (fallback "WS" se vazio)
+  _text_raw = length(local.parts) >= 1 ? local.parts[0] : ""
+  _text_letters = regexreplace(local._text_raw, "[^A-Za-z]", "")
+  suffix_text_up = upper(local._text_letters != "" ? local._text_letters : "WS")
 
-  # ----- Mantém apenas [a-z0-9-] sem usar regexreplace -----
-  # Pega cada caractere válido com regexall e junta tudo
-  _allowed_list = regexall("[a-z0-9-]", local._hn1)
-  _hn2          = join("", local._allowed_list)
+  # Extrai parte numérica (último segmento se for 1–2 dígitos), default 01
+  _num_candidate = length(local.parts) >= 2 ? local.parts[length(local.parts)-1] : ""
+  _num_is_digit  = can(regex("^[0-9]{1,2}$", local._num_candidate))
+  suffix_num_fmt = local._num_is_digit ? format("%02d", tonumber(local._num_candidate)) : "01"
 
-  # ----- (Opcional) comprimir múltiplos '-' sem regexreplace -----
-  # Como não temos regexreplace, vamos deixar hífens duplos se aparecerem; a OCI permite '-' no meio.
-  # (Se fizer questão de comprimir, dá pra fazer com uma pequena expressão dinâmica de replace em camadas)
-  _hn3 = local._hn2
+  # ---------- DISPLAY NAME (sempre MAIÚSCULO) ----------
+  display_name = "${local.prefix_display}-${local.suffix_text_up}-${local.suffix_num_fmt}"
 
-  # ----- Remove '-' no início e no fim (usando trim) -----
-  _hn4     = trim(local._hn3, "-")
-  _hn_base = length(local._hn4) == 0 ? "vm" : local._hn4
-
-  # Sufixo numérico só quando ws estiver em branco
-  add_numeric_suffix = length(trimspace(local.ws)) == 0
-
-  # Se tiver sufixo, reservamos 12 + 3 = 15 chars
-  _hn_trunc_for_suffix = substr(local._hn_base, 0, 12)
-  _hn_trunc_no_suffix  = substr(local._hn_base, 0, 15)
-
-  # Hostname final (para create_vnic_details.hostname_label)
-  hostname_sanitized = local.add_numeric_suffix ? format("%s%03d", local._hn_trunc_for_suffix, random_integer.dns.result) : local._hn_trunc_no_suffix
-
-  # Display name (informativo)
-  display_name = "APPGRU-${local.ws}"
-}
-
-locals {
-  # Ajuste o prefixo conforme seu padrão
-  prefix_raw = "appgru"
-
-  # Sufixo: usa o fornecido ou gera aleatório de 3 dígitos
-  suffix_raw = trimspace(var.name_suffix) != "" ? lower(trimspace(var.name_suffix)) : (
-    length(random_integer.dns) > 0 ? format("%03d", random_integer.dns[0].result) : "001"
-  )
-
-  # Normaliza (apenas a-z0-9-)
-  prefix_norm = lower(regexreplace(local.prefix_raw, "[^a-z0-9-]", ""))
-  suffix_norm = lower(regexreplace(local.suffix_raw, "[^a-z0-9-]", ""))
-
-  # Junta partes (sem env), evitando hifens duplos e nas pontas
-  _hn0 = join("-", compact([
-    local.prefix_norm != "" ? local.prefix_norm : null,
-    local.suffix_norm != "" ? local.suffix_norm : null,
-  ]))
-  _hn1 = regexreplace(local._hn0, "-{2,}", "-")
-  _hn2 = trim(local._hn1, "-")
-
-  # Começa com letra? Se não, prefixa 'h'. Limita a 63 chars
-  _hn3           = length(regexall("^[a-z]", local._hn2)) > 0 ? local._hn2 : (local._hn2 != "" ? "h${local._hn2}" : "host")
-  hostname_label = substr(local._hn3, 0, 63)
-
-  # Display name reaproveita o mesmo sufixo
-  display_name = "${local.suffix_raw}"
+  # ---------- HOSTNAME (sempre minúsculo, DNS-safe) ----------
+  _hn_base_raw = lower("${local.prefix_dns}-${local.suffix_text_up}-${local.suffix_num_fmt}")  # ex.: appgru-autst-01
+  _hn_keep     = regexreplace(local._hn_base_raw, "[^a-z0-9-]", "")
+  _hn_collapse = regexreplace(local._hn_keep, "-{2,}", "-")
+  _hn_trimmed  = trim(local._hn_collapse, "-")
+  _hn_start    = length(regexall("^[a-z]", local._hn_trimmed)) > 0 ? local._hn_trimmed : "h${local._hn_trimmed}"
+  hostname_label = substr(local._hn_start, 0, 63)
 }
