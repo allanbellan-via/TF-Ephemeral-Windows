@@ -1,15 +1,32 @@
 #ps1_sysnative
 
-$user = "${ViaAdminUsername}"
-$pass = "${ViaAdminPassword}" | ConvertTo-SecureString -AsPlainText -Force
+$ViaAdminUsername = "${ViaAdminUsername}"
+$ViaAdminPassword = "${ViaAdminPassword}" | ConvertTo-SecureString -AsPlainText -Force
 
-if (-not (Get-LocalUser -Name $user -ErrorAction SilentlyContinue)) {
-  New-LocalUser -Name $user -Password $pass -AccountNeverExpires:$true
+if (-not (Get-LocalUser -Name $ViaAdminUsername -ErrorAction SilentlyContinue)) {
+  New-LocalUser -Name $ViaAdminUsername -Password $ViaAdminPassword -AccountNeverExpires:$true
 } else {
-  Set-LocalUser -Name $user -Password $pass
+  Set-LocalUser -Name $ViaAdminUsername -Password $ViaAdminPassword
 }
-Add-LocalGroupMember -Group "Administrators" -Member $user
+Add-LocalGroupMember -Group "Administrators" -Member $ViaAdminUsername
 
-WMIC USERACCOUNT WHERE "Name='$user'" SET PasswordExpires=FALSE | Out-Null
+# Evita “password must be changed at next logon”
+WMIC USERACCOUNT WHERE "Name='$ViaAdminUsername'" SET PasswordExpires=FALSE | Out-Null
+
+
+
+$TestUsername = "${ViaAdminUsername}"
+$TestPassword = "${ViaAdminPassword}" | ConvertTo-SecureString -AsPlainText -Force
+
+if (-not (Get-LocalUser -Name $TestUsername -ErrorAction SilentlyContinue)) {
+  New-LocalUser -Name $TestUsername -Password $TestPassword -AccountNeverExpires:$true
+} else {
+  Set-LocalUser -Name $TestUsername -Password $TestPassword
+}
+Add-LocalGroupMember -Group "Administrators" -Member $TestUsername
+
+# Evita “password must be changed at next logon”
+WMIC USERACCOUNT WHERE "Name='$TestUsername'" SET PasswordExpires=FALSE | Out-Null
+
 
 Write-Host "Usuários administrativos configurados. Bootstrap finalizado."

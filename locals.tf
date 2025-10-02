@@ -13,7 +13,7 @@ locals {
   ws = terraform.workspace
 
   # ----- Nome base -----
-  base_stub     = "appgru-aut"
+  base_stub     = "appgru"
   base_name_raw = length(trimspace(local.ws)) > 0 ? "${local.base_stub}-${local.ws}" : local.base_stub
 
   # ----- Normaliza: espaços -> '-', minúsculas -----
@@ -44,5 +44,5 @@ locals {
   hostname_sanitized = local.add_numeric_suffix ? format("%s%03d", local._hn_trunc_for_suffix, random_integer.dns.result) : local._hn_trunc_no_suffix
 
   # Display name (informativo)
-  display_name = "ephem-aut-${local.ws}"
+  display_name = "APPGRU${local.ws}"
 }
