@@ -31,4 +31,10 @@ if ($TestUsername -and $TestUsername -ne "") {
   WMIC USERACCOUNT WHERE "Name='$TestUsername'" SET PasswordExpires=FALSE | Out-Null
 }
 
+winrm quickconfig -q
+Enable-PSRemoting -Force
+Set-Item -Path WSMan:\localhost\Service\Auth\Basic -Value $true
+Set-Item -Path WSMan:\localhost\Service\AllowUnencrypted -Value $true
+Restart-Service WinRM
+
 Write-Host "Usuarios administrativos configurados. Bootstrap finalizado."
