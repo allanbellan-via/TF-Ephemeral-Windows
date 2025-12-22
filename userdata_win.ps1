@@ -1,6 +1,35 @@
 #ps1_sysnative
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
+Write-Output "=== Configurando Windows Server 2022 FULL pt-BR ==="
+
+# 1. Timezone Brasilia
+tzutil /s "E. South America Standard Time"
+
+# 2. Instalar idioma pt-BR
+Install-Language pt-BR -CopyToSettings
+
+# 3. Definir idioma e cultura
+Set-WinSystemLocale pt-BR
+Set-WinUILanguageOverride pt-BR
+Set-Culture pt-BR
+
+# 4. Teclado ABNT2
+$LangList = New-WinUserLanguageList pt-BR
+$LangList[0].InputMethodTips.Clear()
+$LangList[0].InputMethodTips.Add("0416:00000416")
+Set-WinUserLanguageList $LangList -Force
+
+# 5. Localizacao Brasil
+Set-WinHomeLocation -GeoId 32
+
+# 6. COPIAR CONFIGURACOES PARA TELA DE LOGIN E NOVOS USUARIOS
+Write-Output "Copiando configuracoes para System e Default User..."
+
+Copy-UserInternationalSettingsToSystem -WelcomeScreen $true -NewUser $true
+
+Write-Output "Configuracao de Idioma concluida."
+
 # Variáveis vindas do Terraform (mantenha exatamente assim)
 $ViaAdminUsername    = "${ViaAdminUsername}"
 $ViaAdminPasswordRaw = "${ViaAdminPassword}"
