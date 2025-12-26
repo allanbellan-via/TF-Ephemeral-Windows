@@ -90,7 +90,7 @@ variable "memory_in_gbs" {
 variable "image_ocid_override" {
   type        = string
   description = "OPCIONAL: OCID de uma imagem específica para usar, ignorando a busca automática."
-  default     = ""
+  default     = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaabcmcr3bujyjadcgzl6iumnzvwiplypwptdpys2gzr7cdwfi5rp2q"
 }
 
 # --------------- REDE E DISCO ---------------
